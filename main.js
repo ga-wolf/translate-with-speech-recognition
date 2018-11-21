@@ -1,16 +1,46 @@
+function speak(words) {
+  const synth = window.speechSynthesis;
+  const utterance = new SpeechSynthesisUtterance(words);
+  const lang = document.querySelector("#destination").value;
+  utterance.lang = lang;
+  synth.speak(utterance);
+}
+
+function displayTranslation(data) {
+  const translatedText = data.text[0];
+  const translationDiv = document.querySelector("#translation");
+  translationDiv.innerHTML = `<h3>${translatedText}</h3>`;
+  speak(translatedText);
+}
+
+function translate(words) {
+  const baseURL = "https://translate.yandex.net/api/v1.5/tr.json/translate";
+  const firstLang = document.querySelector("select").value;
+  const secondLang = document.querySelector("#destination").value;
+  console.log(firstLang, secondLang);
+  const lang = `${firstLang}-${secondLang}`;
+  const apiKey =
+    "trnsl.1.1.20180423T104000Z.92de8d60387621be.caaca061cc50ab7a5e1ed325c018e437dc26eef6";
+  const params = `?key=${apiKey}&text=${words}&lang=${lang}`;
+  fetch(baseURL + params)
+    .then(function(response) {
+      return response.json();
+    })
+    .then(displayTranslation);
+}
+
 function displayData(words) {
   const output = document.querySelector("#output");
   output.innerHTML = `<p>${words}</p>`;
-  // document.body.style.backgroundColor = words;
+  translate(words);
 }
 
 function onButtonClick() {
-  const recognition = new webkitSpeechRecognition();
-
   const dropdown = document.querySelector("select");
   const language = dropdown.value;
-  recognition.lang = language;
 
+  const recognition = new webkitSpeechRecognition();
+  recognition.lang = language;
   recognition.onresult = function(data) {
     const words = data.results[0][0].transcript;
     displayData(words);
